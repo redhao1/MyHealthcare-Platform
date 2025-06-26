@@ -5,7 +5,7 @@ target/
 !**/src/test/**/target/
 
 ### Local congfigration file###
-localEnv.properties
+src/main/resources/localEnv.yaml
 
 
 ### STS ###

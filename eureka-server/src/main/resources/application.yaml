@@ -1,0 +1,15 @@
+server:
+  port: 1008
+
+spring:
+  application:
+    name: eureka-server
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:1008/eureka
+
+  dashboard:
+    enabled: true
+    path: /dashboard

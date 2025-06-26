@@ -1,0 +1,56 @@
+# import the local config file to load data for database connection
+spring:
+  config:
+    import: classpath:localEnv.yaml
+  application:
+    name: patient-service
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+
+# DataSource configuration for connecting to dataBase
+# Configuration with H2
+# UNCOMMENT TO USE H2 IN MEMORY DATABASE OUTSIDE OF DOCKER
+#  datasource:
+#    driver-class-name: org.h2.Driver
+#    url: ${h2.database-url}
+#    username: ${h2.user}
+#    password: ${h2.password}
+#  h2:
+#    console:
+#      path: /h2-console
+
+
+# Hibernate configuration
+# Included in the docker environment
+# UNCOMMENT TO APPLY WHEN RUN APPLICATION OUTSIDE OF DOCKER
+#  jpa:
+#    database-platform: org.hibernate.dialect.H2Dialect
+#    hibernate:
+#      ddl-auto: update
+#
+#  sql:
+#    init:
+#      mode: ALWAYS
+
+# The port number with current service
+server:
+  port: 4000
+
+# display all logs in the Terminal
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        aop: DEBUG
+        context:
+          annotation:
+            AnnotationConfigApplicationContext: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:1008/eureka

@@ -1,0 +1,55 @@
+server:
+  port: 4004
+
+spring:
+  application:
+    name: api-gateway
+
+
+#  cloud:
+#    gateway:
+#      routes:
+#        - id: patient-service-route
+#          uri: http://patient-service:4000
+#          predicates:
+#            - Path=/api/patients/**
+#          filters:
+#            - StripPrefix=1
+#
+#        - id: api-docs-patient-route
+#          uri: http://patient-service:4000
+#          predicates:
+#            - Path=/api-docs/patients
+#          filters:
+#            - RewritePath=/api-docs/patients,/v3/api-docs
+
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: patient-service-route
+          uri: lb://patient-service
+          predicates:
+            - Path=/api/patients/**
+          filters:
+            - StripPrefix=1
+
+        - id: api-docs-patient-route
+          uri: lb://patient-service
+          predicates:
+            - Path=/api-docs/patients
+          filters:
+            - RewritePath=/api-docs/patients,/v3/api-docs
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    com.netflix.discovery: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:1008/eureka
