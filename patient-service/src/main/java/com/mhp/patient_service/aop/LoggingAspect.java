@@ -25,7 +25,7 @@ public class LoggingAspect {
 //    @Pointcut("execution(* com.mhp.patient_service.kafka.KafkaProducer..*(..))")
 //    public void kafkaProducerPointcut() {}
 
-    // Log error message after global custom exceptions
+    // Log error message after global custom exception
     @After("handleGlobalExceptionPointcut(ex)")
     public void logCustomException(JoinPoint joinPoint, Exception ex) {
         log.warn("Exception handled by: {}, error message: {}", joinPoint.getSignature().getName(), ex.getMessage());

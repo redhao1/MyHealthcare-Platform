@@ -6,6 +6,7 @@ spring:
     name: api-gateway
 
 
+## Gateway config without eureka service ##
 #  cloud:
 #    gateway:
 #      routes:
@@ -30,19 +31,39 @@ spring:
           enabled: true
           lower-case-service-id: true
       routes:
+
+        # Route for auth service
+        - id: auth-service-route
+          uri: lb://auth-service
+          predicates:
+              - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        # Route for auth service
         - id: patient-service-route
           uri: lb://patient-service
           predicates:
             - Path=/api/patients/**
           filters:
             - StripPrefix=1
+            - JwtValidation
 
+        # Route for openapi doc page for patient service
         - id: api-docs-patient-route
           uri: lb://patient-service
           predicates:
             - Path=/api-docs/patients
           filters:
             - RewritePath=/api-docs/patients,/v3/api-docs
+
+        # Route for openapi doc page for auth service
+        - id: api-docs-auth-route
+          uri: lb://auth-service
+          predicates:
+            - Path=/api-docs/auth
+          filters:
+            - RewritePath=/api-docs/auth,/v3/api-docs
 
 logging:
   level:
