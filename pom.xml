@@ -27,6 +27,9 @@
         <module>api-gateway</module>
         <module>analytics-service</module>
         <module>auth-service</module>
+        <module>doctor-service</module>
+        <module>appointment-service</module>
+        <module>notification-service</module>
     </modules>
 
     <!-- Dependency Management -->

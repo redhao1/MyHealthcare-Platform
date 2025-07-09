@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/patients")
+@RequestMapping("/patient")
 @Tag(name = "Patient", description = "API for managing patients")
 public class PatientController {
 
@@ -29,12 +29,21 @@ public class PatientController {
     }
 
     // endpoint to get all patients, return as a List of PatientResponseDTO
-    @GetMapping
+    @GetMapping("/all")
     @Operation(summary = "Get all patients")
     public ResponseEntity<List<PatientResponseDTO>> getPatients() {
         List<PatientResponseDTO> patients = patientService.getPatients();
 
         return new ResponseEntity<>(patients, HttpStatus.OK);
+    }
+
+    // endpoint to get a patient by id, return as a PatientResponseDTO
+    @GetMapping("/{id}")
+    @Operation(summary = "Get a patient by id")
+    public ResponseEntity<PatientResponseDTO> getPatients(@PathVariable UUID id) {
+        PatientResponseDTO patient = patientService.getPatient(id);
+
+        return new ResponseEntity<>(patient, HttpStatus.OK);
     }
 
     @PostMapping

@@ -8,14 +8,13 @@
 ## Copy the parent POM, POM in this module and source folder
 ## into corresponding directory of container
 #COPY pom.xml .
-#RUN mvn dependency:go-offline -B
+#
 #COPY src ./src
 #
 ## Install the parent POM
 ## Fetch dependencies for current module
 #
 ## Build current module
-#RUN mvn package
 #RUN mvn clean install
 
 

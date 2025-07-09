@@ -10,3 +10,8 @@ spring:
 
 server:
   port: 4003
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka

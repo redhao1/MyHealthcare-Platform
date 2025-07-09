@@ -2,6 +2,7 @@ package com.mhp.patient_service.kafka;
 
 import com.mhp.patient_service.model.Patient;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 import patient.events.PatientEvent;
@@ -10,13 +11,13 @@ import patient.events.PatientEvent;
 @Component
 public class KafkaProducer {
 
-    private final KafkaTemplate<String, byte[]> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public KafkaProducer(KafkaTemplate<String, byte[]> kafkaTemplate) {
+    public KafkaProducer(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendEvent(Patient patient) {
+    public void sendGrpcEvent(Patient patient, String topic) {
 
         PatientEvent event = PatientEvent.newBuilder()
                 .setPatientId(patient.getId().toString())
@@ -26,9 +27,17 @@ public class KafkaProducer {
                 .build();
 
         try {
-            kafkaTemplate.send("patient", event.toByteArray());
+            kafkaTemplate.send(topic, event.toByteArray());
         } catch (Exception e) {
             log.error("Error sending Patient Created event: {}", event);
+        }
+    }
+
+    public void sendStringEvent(Patient patient, String topic) {
+        try {
+            kafkaTemplate.send(topic, patient.toString());
+        } catch (Exception e) {
+            log.error("Error sending Patient Created event: {}", patient.toString());
         }
     }
 }

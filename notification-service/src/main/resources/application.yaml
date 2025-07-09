@@ -1,0 +1,58 @@
+spring:
+  application:
+    name: notification-service
+
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: false
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.mhp.notification_service.dto"
+        spring.json.value.default.type: com.mhp.notification_service.dto.AppointmentDTO
+        spring.json.use.type.headers: false
+
+
+server:
+  port: 4007
+
+# display all logs in the Terminal
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        aop: DEBUG
+        context:
+          annotation:
+            AnnotationConfigApplicationContext: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka
+
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+    instances:
+      patient-service:
+        baseConfig: default
+      doctor-service:
+        baseConfig: default

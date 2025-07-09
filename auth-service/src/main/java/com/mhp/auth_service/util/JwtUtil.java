@@ -1,6 +1,8 @@
 package com.mhp.auth_service.util;
 
 
+
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -16,12 +18,12 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final Key secretKay;
+    private final Key secretKey;
 
     public JwtUtil(@Value("${jwt.secret}") String secret) {
         byte[] keyBytes = Base64.getDecoder().decode(secret.getBytes(
                 StandardCharsets.UTF_8));
-        this.secretKay = Keys.hmacShaKeyFor(keyBytes);
+        this.secretKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String generateToken(String email, String role) {
@@ -30,13 +32,13 @@ public class JwtUtil {
                 .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000*60*60*10)) // 10 hours
-                .signWith(secretKay)
+                .signWith(secretKey)
                 .compact();
     }
 
     public void validateToken(String token) {
         try {
-            Jwts.parser().verifyWith((SecretKey) secretKay)
+            Jwts.parser().verifyWith((SecretKey) secretKey)
                     .build()
                     .parseSignedClaims(token);
         } catch (SignatureException e) {
@@ -44,5 +46,12 @@ public class JwtUtil {
         } catch (JwtException e) {
             throw new JwtException("Invalid JWT");
         }
+    }
+
+    public Claims parseToken(String token) throws JwtException {
+        return Jwts.parser().verifyWith((SecretKey) secretKey)
+                .build()
+                .parseSignedClaims(token).getPayload();
+
     }
 }

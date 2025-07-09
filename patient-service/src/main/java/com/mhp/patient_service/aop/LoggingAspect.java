@@ -29,6 +29,7 @@ public class LoggingAspect {
     @After("handleGlobalExceptionPointcut(ex)")
     public void logCustomException(JoinPoint joinPoint, Exception ex) {
         log.warn("Exception handled by: {}, error message: {}", joinPoint.getSignature().getName(), ex.getMessage());
+
     }
 
     // Log message after grpc methods execution

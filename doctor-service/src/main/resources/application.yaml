@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: doctor-service
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+
+# The port number with current service
+server:
+  port: 4005
+
+# display all logs in the Terminal
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        aop: DEBUG
+        context:
+          annotation:
+            AnnotationConfigApplicationContext: DEBUG
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka

@@ -1,5 +1,6 @@
 package com.mhp.auth_service.model;
 
+import com.mhp.auth_service.util.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,6 +23,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
 }

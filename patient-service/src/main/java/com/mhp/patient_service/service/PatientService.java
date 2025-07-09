@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -39,6 +38,13 @@ public class PatientService {
         return patientResponseDTOS;
     }
 
+    public PatientResponseDTO getPatient(UUID id) {
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with ID: " + id));
+
+        return PatientMapper.toDTO(patient);
+    }
+
     public PatientResponseDTO createPatient(PatientRequestDTO patientRequestDTO) {
 
         if(patientRepository.existsByEmail(patientRequestDTO.getEmail())) {
@@ -51,7 +57,7 @@ public class PatientService {
         billingServiceGrpcClient.createBillingAccount(newPatient.getId().toString(),
                 newPatient.getName(), newPatient.getEmail());
 
-        kafkaProducer.sendEvent(newPatient);
+        kafkaProducer.sendGrpcEvent(newPatient, "patient");
 
         return PatientMapper.toDTO(newPatient);
     }
@@ -81,6 +87,12 @@ public class PatientService {
     }
 
     public void deletePatient(UUID id) {
+
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with ID: " + id));
+
         patientRepository.deleteById(id);
+        // also delete billing account with this patient id by calling billing service
+        // check if billing account is able to be deleted, if not, send response back, unable to delete patient
     }
 }

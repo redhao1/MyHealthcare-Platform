@@ -9,19 +9,9 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
-
-# DataSource configuration for connecting to dataBase
-# Configuration with H2
-# UNCOMMENT TO USE H2 IN MEMORY DATABASE OUTSIDE OF DOCKER
-#  datasource:
-#    driver-class-name: org.h2.Driver
-#    url: ${h2.database-url}
-#    username: ${h2.user}
-#    password: ${h2.password}
-#  h2:
-#    console:
-#      path: /h2-console
-
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 # Hibernate configuration
 # Included in the docker environment
@@ -53,4 +43,4 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:1008/eureka
+      defaultZone: http://eureka-server:8761/eureka

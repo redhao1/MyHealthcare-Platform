@@ -13,19 +13,28 @@ spring:
 #        - id: patient-service-route
 #          uri: http://patient-service:4000
 #          predicates:
-#            - Path=/api/patients/**
+#            - Path=/api/patient/**
 #          filters:
 #            - StripPrefix=1
 #
 #        - id: api-docs-patient-route
 #          uri: http://patient-service:4000
 #          predicates:
-#            - Path=/api-docs/patients
+#            - Path=/api-docs/patient
 #          filters:
-#            - RewritePath=/api-docs/patients,/v3/api-docs
+#            - RewritePath=/api-docs/patient,/v3/api-docs
 
+#  redis:
+#    host: redis
+#    port: 6379
   cloud:
     gateway:
+#      default-filters:
+#        - name: RequestRateLimiter
+#          args:
+#            redis-rate-limiter.replenishRate: 5
+#            redis-rate-limiter.burstCapacity: 10
+#            key-resolver: "#{@ipKeyResolver}"
       discovery:
         locator:
           enabled: true
@@ -39,23 +48,74 @@ spring:
               - Path=/auth/**
           filters:
             - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: authServiceCircuitBreaker
+                fallbackUri: forward:/fallback/auth
 
-        # Route for auth service
+        # Route for patient service
         - id: patient-service-route
           uri: lb://patient-service
           predicates:
-            - Path=/api/patients/**
+            - Path=/admin/patient/**, /admin/patient
           filters:
             - StripPrefix=1
-            - JwtValidation
+            - name: CircuitBreaker
+              args:
+                name: patientServiceCircuitBreaker
+                fallbackUri: forward:/fallback/patient
+
+        # Route for doctor service
+        - id: doctor-service-route
+          uri: lb://doctor-service
+          predicates:
+            - Path=/admin/doctor/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: doctorServiceCircuitBreaker
+                fallbackUri: forward:/fallback/doctor
+
+        # Route for appointment service
+        - id: appointment-service-route
+          uri: lb://appointment-service
+          predicates:
+            - Path=/admin/appointment/**, /admin/appointment
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: appointmentServiceCircuitBreaker
+                fallbackUri: forward:/fallback/appointment
+
+        # Route for billing service
+        - id: billing-service-route
+          uri: lb://billing-service
+          predicates:
+            - Path=/admin/billing/**
+          filters:
+            - StripPrefix=1
+            - name: CircuitBreaker
+              args:
+                name: billingServiceCircuitBreaker
+                fallbackUri: forward:/fallback/billing
 
         # Route for openapi doc page for patient service
         - id: api-docs-patient-route
           uri: lb://patient-service
           predicates:
-            - Path=/api-docs/patients
+            - Path=/api-docs/patient
           filters:
-            - RewritePath=/api-docs/patients,/v3/api-docs
+            - RewritePath=/api-docs/patient,/v3/api-docs
+
+        # Route for openapi doc page for doctor service
+        - id: api-docs-doctor-route
+          uri: lb://doctor-service
+          predicates:
+            - Path=/api-docs/doctor
+          filters:
+            - RewritePath=/api-docs/doctor,/v3/api-docs
 
         # Route for openapi doc page for auth service
         - id: api-docs-auth-route
@@ -73,4 +133,34 @@ logging:
 eureka:
   client:
     service-url:
-      defaultZone: http://eureka-server:1008/eureka
+      defaultZone: http://eureka-server:8761/eureka
+
+management:
+  endpoints.web.exposure.include: '*'
+  endpoint.health.show-details: always
+  health.circuitBreakers.enabled: true
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        permittedNumberOfCallsInHalfOpenState: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20s
+    instances:
+      patientServiceCircuitBreaker:
+        baseConfig: default
+      doctorServiceCircuitBreaker:
+        baseConfig: default
+      appointmentServiceCircuitBreaker:
+        baseConfig: default
+      analyticsServiceCircuitBreaker:
+        baseConfig: default
+      authServiceCircuitBreaker:
+        baseConfig: default
+      billingServiceCircuitBreaker:
+        baseConfig: default
+
+
